@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { Plus, Check, Trash2 } from 'lucide-react';
+import { Plus, Check, Trash2, Undo2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Avatar } from '@/components/ui/Avatar';
@@ -14,14 +14,16 @@ interface SidebarProps {
   onQuickAction?: (query: string) => void;
   onNewConversation?: () => void;
   onResetData?: () => void;
+  onUndo?: () => void;
 }
 
 export function Sidebar({
   isOpen = true,
-  onToggle: _onToggle,  
+  onToggle: _onToggle,
   onQuickAction,
   onNewConversation,
   onResetData,
+  onUndo,
 }: SidebarProps) {
   usePathname();
   const router = useRouter();
@@ -98,6 +100,14 @@ export function Sidebar({
               <span>Conversations</span>
             </div>
             <div className="flex items-center gap-1">
+              {/* Undo - Icon Only */}
+              <button
+                onClick={onUndo}
+                className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                title="Undo"
+              >
+                <Undo2 className="w-3 h-3" />
+              </button>
               {/* Reset Data - Icon Only */}
               <button
                 onClick={onResetData}

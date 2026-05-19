@@ -76,6 +76,30 @@ function DemoLayoutContent({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleUndo = async () => {
+    try {
+      console.log('[DemoLayout] Calling revert demo data webhook...');
+      const response = await fetch('https://auzmor.app.n8n.cloud/webhook/revertDemoData', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        console.log('[DemoLayout] Demo data reverted successfully');
+        // Optionally show a success message
+        alert('Demo data has been reverted successfully!');
+      } else {
+        console.error('[DemoLayout] Failed to revert demo data:', response.statusText);
+        alert('Failed to revert demo data. Please try again.');
+      }
+    } catch (error) {
+      console.error('[DemoLayout] Error calling revert webhook:', error);
+      alert('Error reverting demo data. Please check your connection.');
+    }
+  };
+
   return (
     <SidebarProvider
       value={{ sidebarOpen, toggleSidebar: () => setSidebarOpen(!sidebarOpen) }}
@@ -87,6 +111,7 @@ function DemoLayoutContent({ children }: { children: React.ReactNode }) {
           onQuickAction={handleQuickAction}
           onNewConversation={handleNewConversation}
           onResetData={handleResetData}
+          onUndo={handleUndo}
         />
         <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
       </div>

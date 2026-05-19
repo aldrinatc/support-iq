@@ -37,9 +37,9 @@ export const InteractiveChat = forwardRef<InteractiveChatRef, InteractiveChatPro
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
   const [displayedText, setDisplayedText] = useState<Record<string, string>>({});
   const [showThinking, setShowThinking] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [forceScroll, setForceScroll] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -102,6 +102,9 @@ export const InteractiveChat = forwardRef<InteractiveChatRef, InteractiveChatPro
     // Add user message
     setMessages((prev) => [...prev, userMessage]);
 
+    // Force scroll for user-initiated actions (even if they were scrolled up)
+    setForceScroll(true);
+
     // Find matching response using persona-aware query detection
     const personaId = (persona?.id || 'cor') as PersonaId;
     const match = detectWidgetQuery(query, personaId);
@@ -148,7 +151,33 @@ export const InteractiveChat = forwardRef<InteractiveChatRef, InteractiveChatPro
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // No auto-scroll - user has full manual control
+  // Simple, clean auto-scroll: scroll to bottom when messages change
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    console.log('[InteractiveChat] Messages changed, count:', messages.length);
+    console.log('[InteractiveChat] isAtBottom:', isAtBottom, 'forceScroll:', forceScroll);
+
+    // Scroll if: user is at bottom OR this is a forced scroll (user sent a message)
+    if (isAtBottom || forceScroll) {
+      // Double requestAnimationFrame ensures DOM and layout are fully updated
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          container.scrollTop = container.scrollHeight;
+
+          console.log('[InteractiveChat] Scrolled to bottom, height:', container.scrollHeight);
+
+          // Reset forceScroll flag after scrolling
+          if (forceScroll) {
+            setForceScroll(false);
+          }
+        });
+      });
+    } else {
+      console.log('[InteractiveChat] User scrolled up, not auto-scrolling');
+    }
+  }, [messages, isAtBottom, forceScroll]);
 
   // Handle URL query parameter (from dashboard widget clicks)
   useEffect(() => {
@@ -472,7 +501,11 @@ export const InteractiveChat = forwardRef<InteractiveChatRef, InteractiveChatPro
             {/* Messages */}
             <div className="space-y-6">
             {messages.map((message) => (
-              <div key={message.id} className={message.type !== 'widget' ? 'max-w-3xl mx-auto' : ''}>
+              <div
+                key={message.id}
+                data-message-id={message.id}
+                className={message.type !== 'widget' ? 'max-w-3xl mx-auto' : ''}
+              >
                 {message.type === 'user' && (
                   <div className="flex gap-3 justify-end" data-message-role="user">
                     <div className="max-w-2xl">

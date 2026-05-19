@@ -181,11 +181,11 @@ export class ZohoDeskClient {
   }
 
   /**
-   * Get specific thread details
+   * Get specific thread details with full content
    */
   async getThread(ticketId: string, threadId: string): Promise<ZohoThreadResponse> {
     return this.request<ZohoThreadResponse>(
-      `/api/v1/tickets/${ticketId}/threads/${threadId}`
+      `/api/v1/tickets/${ticketId}/threads/${threadId}?include=plainText`
     );
   }
 
