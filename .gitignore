@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 .turbo/
 test-screenshots/
+
+# Local colleague env (never commit — may hold secrets)
+_env*.local
+# Archived dev screenshots (junk, not delivery assets)
+archive/screenshots/
