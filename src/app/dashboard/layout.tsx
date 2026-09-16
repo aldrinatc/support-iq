@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useUser, useClerk } from '@clerk/nextjs';
+import WorkplaceAccess from '@/components/WorkplaceAccess';
 import {
   Inbox,
   FileText,
@@ -19,7 +20,6 @@ import {
   Moon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { signOut } from 'next-auth/react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface NavItem {
@@ -31,20 +31,22 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/dashboard/drafts', label: 'Draft Queue', icon: Inbox, badge: 3, badgeVariant: 'warning' },
+  { href: '/dashboard/drafts', label: 'Draft Queue', icon: Inbox },
   { href: '/dashboard/chat', label: 'AI Assistant', icon: MessageSquare },
   { href: '/dashboard/tickets', label: 'Tickets', icon: FileText },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const {user} = useUser();
+  const {signOut} = useClerk();
+  const session = user ? {user:{name:user.fullName,image:user.imageUrl,email:user.primaryEmailAddress?.emailAddress}} : null;
   const { theme, toggleTheme, mounted } = useTheme();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -100,7 +102,7 @@ export default function DashboardLayout({
           <div className="mx-3 mt-4 p-3 rounded-lg bg-success/5 border border-success/20">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-success" />
-              <span className="text-xs font-medium text-success">All Systems Operational</span>
+              <span className="text-xs font-medium text-success">Support workspace</span>
             </div>
           </div>
         )}
@@ -201,7 +203,7 @@ export default function DashboardLayout({
               )}
               {!sidebarCollapsed && (
                 <button
-                  onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                  onClick={() => signOut({ redirectUrl: 'https://www.digitalworkplace.ai/sign-in' })}
                   className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all duration-200"
                   title="Sign out"
                 >
@@ -211,7 +213,7 @@ export default function DashboardLayout({
             </div>
           ) : (
             <Link
-              href="/auth/signin"
+              href="https://www.digitalworkplace.ai/sign-in"
               className={`btn-primary flex items-center justify-center rounded-lg font-medium transition-all duration-200 ${sidebarCollapsed ? 'p-2.5' : 'gap-2 px-4 py-2.5'}`}
             >
               <User className="h-5 w-5" />
@@ -232,3 +234,5 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+export default function DashboardLayout({children}: {children: React.ReactNode}) { return <WorkplaceAccess><DashboardLayoutContent>{children}</DashboardLayoutContent></WorkplaceAccess>; }

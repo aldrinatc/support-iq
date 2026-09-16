@@ -215,6 +215,7 @@ export async function POST(request: NextRequest) {
     // Track token usage
     let promptTokens = 0
     let completionTokens = 0
+    let generatedModel = DEMO_MODE ? "demo-mode" : "unknown"
 
     if (DEMO_MODE) {
       // Use demo response
@@ -223,7 +224,6 @@ export async function POST(request: NextRequest) {
       // Call Claude API
       const userPrompt = `Customer Ticket:
 Subject: ${ticketSubject}
-From: ${customerName || 'Unknown'} <${customerEmail || 'unknown@email.com'}>
 
 Message:
 ${originalContent}
@@ -241,6 +241,7 @@ Please analyze this ticket and generate a response draft.`
         ],
       })
 
+      generatedModel = response.model;
       // Extract text content
       const textContent = response.content.find(c => c.type === 'text')
       if (!textContent || textContent.type !== 'text') {
@@ -298,7 +299,7 @@ Please analyze this ticket and generate a response draft.`
         generatedAt: new Date(),
         kbArticlesUsed: aiResponse.kbArticlesRecommended || [],
         sourcesUsed: { reasoning: aiResponse.reasoning },
-        modelVersion: DEMO_MODE ? 'demo-mode' : 'claude-3-5-sonnet-20241022',
+        modelVersion: generatedModel,
         promptTokens,
         completionTokens,
       },

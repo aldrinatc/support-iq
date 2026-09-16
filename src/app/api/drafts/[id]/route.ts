@@ -99,11 +99,16 @@ export async function PATCH(
       )
     }
 
+    if (existingDraft.status === 'SENT') return NextResponse.json({error:'Sent drafts cannot be edited'},{status:409});
+    if (status !== undefined && !['PENDING_REVIEW','IN_REVIEW'].includes(status)) return NextResponse.json({error:'Use the review actions to approve, reject, or send a draft'},{status:400});
     // Build update data
     const updateData: Record<string, unknown> = {}
 
     if (draftContent !== undefined) {
       updateData.draftContent = draftContent
+      if(existingDraft.status==='APPROVED') {
+        updateData.status='PENDING_REVIEW';updateData.finalContent=null;updateData.approvedAt=null;updateData.approvedById=null;
+      }
     }
     if (status !== undefined) {
       updateData.status = status

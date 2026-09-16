@@ -141,7 +141,6 @@ Generate a complete, professional response. Do not include greetings or signatur
 
       const userPrompt = `Original ticket:
 Subject: ${existingDraft.ticketSubject}
-Customer: ${existingDraft.customerName || 'Unknown'}
 
 Original message:
 ${existingDraft.originalContent}
