@@ -248,7 +248,7 @@ async function performDraftAction(
   payload?: Record<string, unknown>
 ): Promise<boolean> {
   try {
-    const endpoint = `/api/drafts/${draftId}/${action}`;
+    const endpoint = `${process.env.NEXT_PUBLIC_BASE_PATH || "/dsq"}/api/drafts/${draftId}/${action}`;
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

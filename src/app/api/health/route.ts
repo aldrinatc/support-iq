@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isSupabaseAvailable } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import packageJson from '../../../../package.json';
 
 /**
@@ -34,15 +34,22 @@ export async function GET() {
   let isHealthy = true;
   const messages: string[] = [];
 
-  // Check Supabase connection (primary database for DSQ schema)
-  if (isSupabaseAvailable()) {
-    checks.supabase = 'connected';
-    messages.push('Supabase connected');
+  // A configured key is not proof of connectivity: issue a bounded, zero-row query.
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('projects').select('id').limit(0).abortSignal(AbortSignal.timeout(8000));
+      if (error) throw new Error('Database API unavailable');
+      checks.supabase = 'connected';
+      messages.push('Supabase API connected');
+    } catch {
+      checks.supabase = 'disconnected';
+      isHealthy = false;
+      messages.push('Supabase API unavailable');
+    }
   } else {
     checks.supabase = 'not_configured';
-    messages.push('Supabase not configured');
-    // Supabase is required for DSQ operations
     isHealthy = false;
+    messages.push('Supabase not configured');
   }
 
   // Check Prisma connection (optional - for NextAuth/legacy features)
@@ -55,7 +62,7 @@ export async function GET() {
     } catch (error) {
       checks.prisma = 'disconnected';
       messages.push('Prisma disconnected');
-      console.warn('[Health Check] Prisma connection failed (optional):', error);
+      console.warn('[Health Check] Prisma connection failed (optional)', error instanceof Error ? error.name : 'unknown');
       // Prisma is optional - don't mark unhealthy
     }
   } else {
