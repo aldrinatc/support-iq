@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 // ============================================================================
 // V20 ITSS - Drafts API Route
 // GET /api/drafts - List drafts with filtering
@@ -11,6 +12,8 @@ import type { ListDraftsParams, DraftStatus } from '@/types/draft'
 
 // GET /api/drafts - List drafts with filtering and pagination
 export async function GET(request: NextRequest) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { searchParams } = new URL(request.url)
 
@@ -33,6 +36,10 @@ export async function GET(request: NextRequest) {
       sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
     }
 
+    if (!Number.isInteger(params.page) || (params.page || 0) < 1 || !Number.isInteger(params.limit) || (params.limit || 0) < 1 ||
+        !['createdAt','generatedAt','confidenceScore','status','updatedAt'].includes(params.sortBy || '') || !['asc','desc'].includes(params.sortOrder || '')) {
+      return NextResponse.json({error:'Invalid pagination or sort parameters'},{status:400});
+    }
     // Build where clause
     const where: Record<string, unknown> = {}
 
@@ -43,7 +50,7 @@ export async function GET(request: NextRequest) {
         : params.status
       where.status = Array.isArray(statuses) && statuses.length > 1
         ? { in: statuses }
-        : statuses
+        : statuses[0]
     }
 
     if (params.assignedAgentId) {
@@ -114,6 +121,8 @@ export async function GET(request: NextRequest) {
 
 // POST /api/drafts - Create draft manually (for testing or manual entry)
 export async function POST(request: NextRequest) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const body = await request.json()
 

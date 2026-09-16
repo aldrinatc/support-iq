@@ -41,11 +41,11 @@ export function proxy(_request: NextRequest) {
   // Allows inline scripts and styles for Next.js, but restricts other sources
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live;
+    script-src https://clerk.digitalworkplace.ai 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' data: https: blob:;
     font-src 'self' data: https://fonts.gstatic.com;
-    connect-src 'self' https://api.anthropic.com https://api.dicebear.com https://*.supabase.co wss://*.supabase.co https://vercel.live wss://*.pusher.com https://auzmor.app.n8n.cloud;
+    connect-src https://clerk.digitalworkplace.ai 'self' https://api.anthropic.com https://api.dicebear.com https://*.supabase.co wss://*.supabase.co https://vercel.live wss://*.pusher.com https://auzmor.app.n8n.cloud;
     frame-src 'self' https://vercel.live;
     object-src 'none';
     base-uri 'self';

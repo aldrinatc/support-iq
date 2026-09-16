@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 // ============================================================================
 // V20 ITSS - Draft Versions API
 // GET /api/drafts/[id]/versions - Get version history for a draft
@@ -12,6 +13,8 @@ export async function GET(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
 

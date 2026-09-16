@@ -20,18 +20,35 @@ export function currentModel(model: string): string {
   return model;
 }
 
-/** Approved gateway generation path: OpenAI only. Embeddings stay on their existing provider. */
+/** Embeddings use their original provider unless this separately approved flag is enabled. */
+export async function embeddingFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const request = new Request(input, init);
+  const useGateway = process.env.AI_EMBEDDING_ROUTE === 'vercel-openai';
+  const key = useGateway ? gatewayToken() : process.env.OPENAI_API_KEY;
+  if (!key) return Response.json({ error: { message: 'Embeddings unavailable' } }, { status: 503 });
+  const body = JSON.parse(await request.text());
+  // Keep existing vectors compatible. Never route to another embedding model/vendor.
+  if (body.model !== 'text-embedding-3-small') {
+    return Response.json({ error: { message: 'Unsupported embedding model' } }, { status: 400 });
+  }
+  const headers = new Headers({ 'content-type': 'application/json', authorization: `Bearer ${key}` });
+  if (useGateway) {
+    body.model = 'openai/text-embedding-3-small';
+    body.providerOptions = { gateway: { only: ['openai'] } };
+  }
+  body.dimensions = 1536;
+  return fetch(new Request(useGateway ? `${GATEWAY}/v1/embeddings` : 'https://api.openai.com/v1/embeddings', {
+    method: 'POST', headers, body: JSON.stringify(body),
+    signal: AbortSignal.any([request.signal, AbortSignal.timeout(10_000)]),
+  }));
+}
+
+/** Approved gateway generation path: OpenAI only. */
 export async function resilientAIFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const request = new Request(input, init);
   const url = new URL(request.url);
   if (!['api.anthropic.com', 'api.openai.com'].includes(url.hostname)) return fetch(request);
-  if (url.pathname.endsWith('/embeddings')) {
-    const key = process.env.OPENAI_API_KEY;
-    if (!key) return Response.json({ error: { message: 'Embeddings unavailable' } }, { status: 503 });
-    const headers = new Headers(request.headers);
-    headers.set('authorization', `Bearer ${key}`);
-    return fetch(new Request(request, { headers }));
-  }
+  if (url.pathname.endsWith('/embeddings')) return embeddingFetch(request);
   const original = JSON.parse(await request.text());
   const gateway = gatewayToken();
   const directKey = process.env[url.hostname === 'api.anthropic.com' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY'];

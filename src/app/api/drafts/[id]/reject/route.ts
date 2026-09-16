@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 // ============================================================================
 // V20 ITSS - Reject Draft API
 // POST /api/drafts/[id]/reject - Reject draft with reason
@@ -12,6 +13,8 @@ export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
     const body = await request.json()

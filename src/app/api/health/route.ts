@@ -56,14 +56,14 @@ export async function GET() {
   if (process.env.DATABASE_URL) {
     try {
       const { prisma } = await import('@/lib/prisma');
-      await prisma.$queryRaw`SELECT 1`;
+      await prisma.$queryRaw`SELECT id FROM public.dsq_drafts LIMIT 0`;
       checks.prisma = 'connected';
       messages.push('Prisma connected');
     } catch (error) {
       checks.prisma = 'disconnected';
       messages.push('Prisma disconnected');
       console.warn('[Health Check] Prisma connection failed (optional)', error instanceof Error ? error.name : 'unknown');
-      // Prisma is optional - don't mark unhealthy
+      isHealthy = false;
     }
   } else {
     checks.prisma = 'not_configured';

@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 import { anthropicOptions } from '@/lib/ai-provider';
 // ============================================================================
 // V20 ITSS - AI Draft Generation API
@@ -169,6 +170,8 @@ Looking forward to resolving this for you!`
 }
 
 export async function POST(request: NextRequest) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const body: GenerateDraftRequest = await request.json()
 

@@ -616,7 +616,7 @@ model Draft {
   // AI Classification & Metadata
   confidenceScore Float        @default(0) // 0-100 confidence in response
   category        String?      // password_reset, access_request, bug_report, question
-  priority        Priority     @default(MEDIUM)
+  priority        DraftPriority     @default(MEDIUM)
   sentiment       String?      // frustrated, neutral, satisfied
   complexity      String?      // simple, moderate, complex
   tone            String?      // formal, friendly, technical
@@ -654,11 +654,20 @@ model Draft {
   @@index([status])
   @@index([assignedAgentId])
   @@index([confidenceScore])
-  @@map("drafts")
+  @@map("dsq_drafts")
 }
 
 // Draft status workflow
+enum DraftPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  @@map("DSQDraftPriority")
+}
+
 enum DraftStatus {
+  @@map("DSQDraftStatus")
   GENERATING       // AI is actively generating
   PENDING_REVIEW   // Awaiting agent review
   IN_REVIEW        // Agent is currently reviewing
@@ -693,11 +702,12 @@ model DraftVersion {
 
   @@unique([draftId, version])
   @@index([draftId])
-  @@map("draft_versions")
+  @@map("dsq_draft_versions")
 }
 
 // Types of edits to track
 enum EditType {
+  @@map("DSQDraftEditType")
   AI_GENERATED    // Original AI generation
   AGENT_EDIT      // Manual edit by agent
   REGENERATE      // AI regenerated with new prompt
@@ -750,5 +760,5 @@ model DraftAnalytics {
 
   @@unique([date, category])
   @@index([date])
-  @@map("draft_analytics")
+  @@map("dsq_draft_analytics")
 }

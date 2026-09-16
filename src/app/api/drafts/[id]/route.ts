@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 // ============================================================================
 // V20 ITSS - Single Draft API
 // GET /api/drafts/[id] - Get draft by ID
@@ -15,6 +16,8 @@ export async function GET(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
 
@@ -57,6 +60,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
     const body = await request.json()
@@ -169,6 +174,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
 

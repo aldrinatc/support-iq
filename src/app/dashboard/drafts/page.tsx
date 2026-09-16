@@ -18,198 +18,6 @@ import { DraftReviewWidget } from '@/components/widgets/DraftReviewWidget';
 import type { DraftReviewData } from '@/types/widget';
 import { getConfidenceColor } from '@/types/draft';
 
-// Demo data for drafts
-const DEMO_DRAFTS: DraftReviewData[] = [
-  {
-    id: 'draft-1',
-    draftId: 'DRF-1733961234567',
-    ticketId: 'TICK-001',
-    ticketSubject: 'Cannot access the customer portal',
-    customerName: 'John Smith',
-    customerEmail: 'john.smith@company.com',
-    originalContent: `Hi Support Team,
-
-I've been trying to log into the customer portal for the past hour but keep getting an "Invalid credentials" error. I've reset my password twice already and still can't get in.
-
-This is urgent as I need to access some important documents for a client meeting tomorrow morning.
-
-Please help!
-
-Thanks,
-John`,
-    draftContent: `Hi John,
-
-I understand how frustrating this must be, especially with an important meeting coming up. Let me help you resolve this access issue right away.
-
-Based on your description, this appears to be a session-related issue rather than a password problem. Here's what I recommend:
-
-1. **Clear your browser cache and cookies** specifically for our portal domain
-2. Try accessing the portal using an **incognito/private browsing window**
-3. If the issue persists, please verify you're using the correct email format (firstname.lastname@company.com)
-
-I've also flagged your account for immediate review by our systems team to ensure there are no backend issues.
-
-If you're still unable to access the portal after trying these steps, please reply to this email and I'll arrange an expedited screen share session to assist you directly.
-
-Best regards,
-Support Team`,
-    status: 'PENDING_REVIEW',
-    confidenceScore: 87.5,
-    category: 'access_request',
-    priority: 'HIGH',
-    sentiment: 'frustrated',
-    complexity: 'moderate',
-    tone: 'friendly',
-    generatedAt: new Date(Date.now() - 15 * 60 * 1000),
-    modelVersion: 'claude-3-5-sonnet-20241022',
-    promptTokens: 450,
-    completionTokens: 280,
-    kbArticlesUsed: ['KB-1001', 'KB-2045'],
-    versions: [
-      {
-        id: 'v1',
-        draftId: 'draft-1',
-        version: 1,
-        content: 'Initial AI draft',
-        editedBy: 'AI',
-        editedByName: 'AI Assistant',
-        editType: 'AI_GENERATED',
-        createdAt: new Date(Date.now() - 15 * 60 * 1000),
-      },
-    ],
-    createdAt: new Date(Date.now() - 15 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 15 * 60 * 1000),
-  },
-  {
-    id: 'draft-2',
-    draftId: 'DRF-1733962345678',
-    ticketId: 'TICK-002',
-    ticketSubject: 'Software installation request - Adobe Creative Suite',
-    customerName: 'Sarah Johnson',
-    customerEmail: 'sarah.johnson@company.com',
-    originalContent: `Hello,
-
-I need Adobe Creative Suite installed on my workstation for an upcoming design project. My manager (David Lee) has approved the purchase.
-
-Can you please proceed with the installation?
-
-Thanks,
-Sarah`,
-    draftContent: `Hi Sarah,
-
-Thank you for reaching out regarding the Adobe Creative Suite installation request.
-
-I can see that manager approval has been noted. To proceed with the installation, I'll need a few additional details:
-
-1. **License confirmation**: Has the Adobe license already been procured, or should I coordinate with procurement?
-2. **Workstation details**: Please confirm your workstation ID (usually found on a sticker on your computer or in System Settings)
-3. **Preferred installation time**: Would you like us to schedule this during lunch hours to minimize work disruption?
-
-Once I have this information, I can schedule the installation. Typical installation time is 45-60 minutes.
-
-Please reply with these details and I'll have the Creative Suite ready for your project in no time!
-
-Best regards,
-IT Support Team`,
-    status: 'PENDING_REVIEW',
-    confidenceScore: 92.3,
-    category: 'feature_request',
-    priority: 'MEDIUM',
-    sentiment: 'neutral',
-    complexity: 'simple',
-    tone: 'formal',
-    generatedAt: new Date(Date.now() - 45 * 60 * 1000),
-    modelVersion: 'claude-3-5-sonnet-20241022',
-    promptTokens: 320,
-    completionTokens: 220,
-    kbArticlesUsed: ['KB-3010', 'KB-3015'],
-    versions: [
-      {
-        id: 'v1',
-        draftId: 'draft-2',
-        version: 1,
-        content: 'Initial AI draft',
-        editedBy: 'AI',
-        editedByName: 'AI Assistant',
-        editType: 'AI_GENERATED',
-        createdAt: new Date(Date.now() - 45 * 60 * 1000),
-      },
-    ],
-    createdAt: new Date(Date.now() - 45 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 45 * 60 * 1000),
-  },
-  {
-    id: 'draft-3',
-    draftId: 'DRF-1733963456789',
-    ticketId: 'TICK-003',
-    ticketSubject: 'Network connectivity issues in Building B',
-    customerName: 'Mike Chen',
-    customerEmail: 'mike.chen@company.com',
-    originalContent: `URGENT: The entire 3rd floor of Building B has lost network connectivity. About 25 employees are affected and cannot work.
-
-We've already tried:
-- Restarting the floor switch
-- Checking cable connections
-- Contacting the ISP (they say it's not on their end)
-
-Please escalate immediately!
-
-Mike Chen
-IT Coordinator, Building B`,
-    draftContent: `Mike,
-
-I've immediately escalated this to our Network Operations Center (NOC) as a P1 incident. Here's the current status:
-
-**Incident #: INC-2024-1211-001**
-**Priority**: Critical (P1)
-**Status**: Active Investigation
-
-**Immediate Actions Taken**:
-1. NOC team has been dispatched to Building B
-2. Network monitoring shows the floor switch is responding but with packet loss
-3. We're suspecting a potential fiber issue in the riser closet
-
-**ETA for On-Site**: 15 minutes
-**Estimated Resolution**: 1-2 hours (pending physical inspection)
-
-**Workaround**:
-Affected employees can temporarily connect to the guest WiFi network (Guest-Corporate) using their standard credentials. This will provide internet access for essential work.
-
-I'll send updates every 30 minutes until resolved. You can also track this incident in real-time at: https://status.internal.company.com/INC-2024-1211-001
-
-Please confirm receipt of this message.
-
-IT Support - NOC Team`,
-    status: 'IN_REVIEW',
-    confidenceScore: 78.2,
-    category: 'technical_issue',
-    priority: 'CRITICAL',
-    sentiment: 'frustrated',
-    complexity: 'complex',
-    tone: 'technical',
-    generatedAt: new Date(Date.now() - 5 * 60 * 1000),
-    assignedAgentId: 'agent-1',
-    modelVersion: 'claude-3-5-sonnet-20241022',
-    promptTokens: 520,
-    completionTokens: 350,
-    kbArticlesUsed: ['KB-5001', 'KB-5010', 'KB-5025'],
-    versions: [
-      {
-        id: 'v1',
-        draftId: 'draft-3',
-        version: 1,
-        content: 'Initial AI draft',
-        editedBy: 'AI',
-        editedByName: 'AI Assistant',
-        editType: 'AI_GENERATED',
-        createdAt: new Date(Date.now() - 5 * 60 * 1000),
-      },
-    ],
-    createdAt: new Date(Date.now() - 5 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 5 * 60 * 1000),
-  },
-];
-
 type FilterStatus = 'ALL' | 'PENDING_REVIEW' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'SENT';
 
 // API helper to fetch drafts
@@ -236,8 +44,7 @@ async function fetchDrafts(status?: string): Promise<DraftReviewData[]> {
     }
     return [];
   } catch (error) {
-    console.error('[Drafts] API fetch error:', error);
-    return [];
+    throw error;
   }
 }
 
@@ -263,29 +70,21 @@ async function performDraftAction(
 }
 
 export default function DraftsPage() {
-  const [drafts, setDrafts] = useState<DraftReviewData[]>(DEMO_DRAFTS);
+  const [drafts, setDrafts] = useState<DraftReviewData[]>([]);
   const [selectedDraft, setSelectedDraft] = useState<DraftReviewData | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [usingDemoData, setUsingDemoData] = useState(true);
+  const usingDemoData = false;
 
   // Fetch drafts from API on mount and when filter changes
   const loadDrafts = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
-    const apiDrafts = await fetchDrafts(filterStatus);
-
-    if (apiDrafts.length > 0) {
-      setDrafts(apiDrafts);
-      setUsingDemoData(false);
-    } else {
-      // Fallback to demo data
-      setDrafts(DEMO_DRAFTS);
-      setUsingDemoData(true);
-    }
+    try { setDrafts(await fetchDrafts(filterStatus)); }
+    catch { setError('Could not load saved drafts. Please refresh to retry.'); }
 
     setIsLoading(false);
   }, [filterStatus]);
@@ -323,33 +122,6 @@ export default function DraftsPage() {
   ) => {
     if (!selectedDraft) return;
 
-    console.log('Draft action:', action, payload);
-
-    // If using demo data, just update local state
-    if (usingDemoData) {
-      setDrafts((prev) =>
-        prev.map((draft) => {
-          if (draft.id !== selectedDraft.id) return draft;
-
-          switch (action) {
-            case 'approve':
-              return { ...draft, status: 'APPROVED' as const, approvedAt: new Date() };
-            case 'reject':
-              return { ...draft, status: 'REJECTED' as const, rejectedAt: new Date() };
-            case 'send':
-              return { ...draft, status: 'SENT' as const, sentAt: new Date() };
-            default:
-              return draft;
-          }
-        })
-      );
-
-      // Clear selection after action
-      if (['approve', 'reject', 'send'].includes(action)) {
-        setSelectedDraft(null);
-      }
-      return;
-    }
 
     // Call real API
     setIsLoading(true);

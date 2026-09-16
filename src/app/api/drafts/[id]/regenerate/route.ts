@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 import { anthropicOptions } from '@/lib/ai-provider';
 // ============================================================================
 // V20 ITSS - Regenerate Draft API
@@ -19,6 +20,8 @@ export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
     const body = await request.json()

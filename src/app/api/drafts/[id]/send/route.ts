@@ -1,3 +1,4 @@
+import { validateDraftRequest } from '@/lib/workplace-auth';
 // ============================================================================
 // V20 ITSS - Send Draft API
 // POST /api/drafts/[id]/send - Send approved draft to customer via Zoho Desk
@@ -19,13 +20,7 @@ async function sendViaZohoDesk(
     bccRecipients?: string[]
   }
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  if (DEMO_MODE) {
-    // Simulate successful send in demo mode
-    return {
-      success: true,
-      messageId: `MSG-${Date.now()}`,
-    }
-  }
+  if (DEMO_MODE) return { success: false, error: 'Email sending is disabled in demo mode. No message was sent.' };
 
   // Real Zoho Desk integration
   try {
@@ -72,6 +67,8 @@ export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const authError = await validateDraftRequest(request);
+  if (authError) return authError;
   try {
     const { id } = await params
     const body = await request.json()
