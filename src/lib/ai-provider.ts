@@ -1,9 +1,12 @@
+import { getVercelOidcTokenSync } from '@vercel/oidc';
 /** Server-only transport. Synced to standalone apps by scripts/sync-ai-runtime.mjs. */
 const GATEWAY = 'https://ai-gateway.vercel.sh';
 const RETRYABLE = new Set([400, 401, 402, 403, 404, 408, 429, 500, 502, 503, 504]);
 
 export function gatewayToken(): string | undefined {
-  return process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  if (process.env.AI_GATEWAY_API_KEY) return process.env.AI_GATEWAY_API_KEY;
+  // Runtime identity is request-scoped; the env token is only a local/build fallback.
+  try { return getVercelOidcTokenSync(); } catch { return undefined; }
 }
 
 export function aiKey(provider: 'anthropic' | 'openai'): string | undefined {
