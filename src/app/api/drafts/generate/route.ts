@@ -1,3 +1,4 @@
+import { anthropicOptions } from '@/lib/ai-provider';
 // ============================================================================
 // V20 ITSS - AI Draft Generation API
 // POST /api/drafts/generate - Generate AI response draft for a ticket
@@ -9,9 +10,7 @@ import { prisma } from '@/lib/prisma'
 import { generateDraftId } from '@/types/draft'
 import type { GenerateDraftRequest, DraftTone, TicketCategory, Sentiment, Complexity } from '@/types/draft'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+const anthropic = new Anthropic(anthropicOptions())
 
 const DEMO_MODE = process.env.DEMO_MODE === 'true'
 

@@ -1,9 +1,8 @@
+import { anthropicOptions } from '@/lib/ai-provider';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+const anthropic = new Anthropic(anthropicOptions());
 
 const DEMO_MODE = process.env.DEMO_MODE === 'true';
 

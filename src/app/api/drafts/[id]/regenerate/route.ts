@@ -1,3 +1,4 @@
+import { anthropicOptions } from '@/lib/ai-provider';
 // ============================================================================
 // V20 ITSS - Regenerate Draft API
 // POST /api/drafts/[id]/regenerate - Regenerate draft with new parameters
@@ -10,9 +11,7 @@ import type { DraftTone } from '@/types/draft'
 
 type RouteParams = { params: Promise<{ id: string }> }
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+const anthropic = new Anthropic(anthropicOptions())
 
 const DEMO_MODE = process.env.DEMO_MODE === 'true'
 
